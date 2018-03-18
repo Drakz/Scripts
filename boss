@@ -17,3 +17,8 @@ function onCombat(cid, target)
         addEvent(retorna, 10000, cid)
     end
 end
+
+function onDeath(cid)
+	setGlobalStorageValue("boss_stage2", 0)
+	return true
+end

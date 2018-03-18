@@ -1,0 +1,96 @@
+local nome = { --Tabela com todos os monstros que serão criados na dungeon.
+	"Medusa_Dungeon",
+	"Medusa_Dungeon",
+}
+
+local pos = { --Tabela com todas as posições dos monstros a serem criados.
+	{x = 141, y = 38, z = 7},
+	{x = 142, y = 38, z = 7},
+}
+
+local monstro_cid = {} --Tabela que guardará os creature id dos monstros para poder retirá-los caso o time não consiga concluir a quest.
+local players = {} --Tabela onde será guardado os jogadores que farão a dungeon.
+local boss = true -- Variável auxiliar para executar a criação do boss apenas um vez.
+local boss_name = "Morgaroth" -- Nome do boss.
+local boss_pos = {x = 130, y = 34, z = 7} -- Posição do boss.
+
+local config = {
+	tempo = 30000, -- Tempo disponível para concluir a dungeon (em milisegundos).
+	check_boss = 10000, -- Tempo de checagem se todos as criaturas já foram mortas para invocar o boss (em milisegundos).
+	check_monsters = 15000, -- Tempo de checagem para mostrar ao player quantidade de monstros restantes (em milisegundos).
+	check_player = 1000, -- Tempo de checagem para retirada dos jogadores da dungeon (em milisegundos).
+	check_limpadungeon = 1000, -- Tempo de chacagem para retirada dos monstros da dungeon (em milisegundos).
+}
+
+--Função para chamar o Boss, será chamando quando os jogadores matarem todos os monstros da dungeon.
+function Boss()
+	if(boss and getGlobalStorageValue("dungeon_1_qtd") == 0 and getGlobalStorageValue("dungeon_1_ativo") == 1) then
+		doCreateMonster(boss_name, boss_pos)
+		boss = false
+		for i = 1, (table.maxn(players)) do
+			if(isPlayer(players[i].uid) == true) then
+				doTeleportThing(players[i].uid, {x = 135+i, y = 34,z = 7})
+			end
+		end
+		return true
+	else
+		addEvent(Boss, config.check_boss)
+	end
+end
+
+--Função para mandar mensagem ao jogadores mostrando quantos monstros já foram matados do total da dungeon.
+function Repete_Mensagem()
+	if(getGlobalStorageValue("dungeon_1_ativo") == 1 and boss) then
+		for i = 1, (table.maxn(players)) do
+			doPlayerSendTextMessage(players[i].uid, MESSAGE_STATUS_CONSOLE_BLUE, "Monstros: "..getGlobalStorageValue("dungeon_1_qtd").."/"..table.maxn(nome))
+		end
+		addEvent(Repete_Mensagem, config.check_monsters)
+	else
+		return true
+	end
+end
+
+--Função para retirar os jogadores da dungeon.
+function Retirar_Player()
+	if(getGlobalStorageValue("dungeon_1_ativo") ~= 1) then
+		for i = 1, (table.maxn(players)) do
+			if(isPlayer(players[i].uid) == true) then
+				doTeleportThing(players[i].uid, getTownTemplePosition(getPlayerTown(players[i].uid)))
+				doPlayerSendTextMessage(players[i].uid, MESSAGE_STATUS_CONSOLE_BLUE, "Você foi teletransportado para sua cidade pois alguém morreu ou o tempo acabou.")
+				setPlayerStorageValue(players[i].uid, 9230, 0)
+			end
+		end
+	else	
+		addEvent(Retirar_Player, config.check_player)
+	end
+end
+
+--Função para retirar os monstros que restarem se a dungeon não for concluída.
+function Limpar_Dungeon()
+	if(getGlobalStorageValue("dungeon_1_ativo") ~= 1) then
+		for i = 1, (table.maxn(monstro_cid)) do
+			if(isMonster(monstro_cid[i]) == true) then
+				doRemoveCreature(monstro_cid[i])
+			end
+		end
+	else	
+		addEvent(Limpar_Dungeon, config.check_limpadungeon)
+	end
+end
+
+--Função principal.
+function onUse(cid, item, frompos, item2, topos)
+	
+	for i = 1,(table.maxn(nome)) do
+		monstro_cid[i] = doCreateMonster(nome[i], pos[i]) -- Cria os monstros e registra seus creature ids em uma tabela.
+	end
+	addEvent(setGlobalStorageValue, config.tempo, "dungeon_1_ativo", 0) -- Cria um evento com o tempo em que a dungeon pode ser feita.
+	players[1] = getTopCreature({x = 143, y = 41, z = 7}) -- Pega os jogadores que irão entrar na dungeon.
+	setPlayerStorageValue(getTopCreature({x = 143, y = 41, z = 7}).uid, 9230, 1) -- Faz o player ficar com a storage da dungeon (falta algo aqui, só não me lembro o que). 
+	setGlobalStorageValue("dungeon_1_ativo", 1) -- Guarda em uma storage se a dungeon está ou não ativa.
+	setGlobalStorageValue("dungeon_1_qtd", table.maxn(nome)) -- Guarda em uma storage o numero de jogadores da dungeon.
+	Boss()
+	Repete_Mensagem()
+	Limpar_Dungeon()
+	Retirar_Player()
+end

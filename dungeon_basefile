@@ -1,0 +1,37 @@
+local pos_jogadores = { -- Posição Inicial dos jogadores
+}
+local pos = { --Tabela com todas as posições dos monstros a serem criados.
+}
+local nome = { --Tabela com todos os monstros que serão criados na dungeon.
+}
+
+local tempo =  15 * 60 * 1000 -- Tempo disponível para concluir a dungeon (em milisegundos).
+local check_boss = 5000 -- Tempo de checagem se todos as criaturas já foram mortas para invocar o boss (em milisegundos).
+local check_monsters = 5000 -- Tempo de checagem para mostrar ao player quantidade de monstros restantes (em milisegundos).
+local check_saida = 5000 -- Tempo de checagem para retirada dos jogadores da dungeon
+local xp = 10 -- Xp recebida ao terminar a dungeon
+local delay = 24*60*60 --Tempo para fazer a dungeon novamente
+local premios = {} -- Premios de conclusão da dungeon
+local dungeon_storage_time = "dungeon_1_time" -- Storage de controle (não mexer)
+local dungeon_storage_ativo = "dungeon_1_ativo" -- Storage de controle (não mexer)
+local dungeon_storage_qtd = "dungeon_1_qtd" -- Storage de controle (não mexer)
+local dungeon_storage = "dungeon_1" -- Storage de controle (não mexer)
+local dungeon_boss = "dungeon_1_boss" -- Storage de controle (não mexer)
+local controle = true -- Váriavel de controle (não mexer)
+local entrada_dungeon = {x = 2030, y = 1485, z = 8} --Posição de entrada da dungeon
+local entrada_boss = {x = 2001, y = 1567, z = 8} --Posição de entrada no boss
+local pos_dungeon = {x = 937, y = 1395, z = 7} -- Posição de saída de dungeon
+local monstro_cid = {} --Tabela que guardará os creature id dos monstros para poder retirá-los caso o time não consiga concluir a quest.
+local players = {} --Tabela onde será guardado os jogadores que farão a dungeon.
+local boss = true -- Variável auxiliar para executar a criação do boss apenas um vez.
+local boss_name = "Demon Boss" -- Nome do boss.
+local boss_pos = {x = 2001, y = 1560, z = 8} -- Posição do boss.
+local time = 0 -- Variável auxiliar para manutenção do time dentro da dungeon (não mexer)
+local lim_dinheiro = 5 --Teto do dinheiro ganho na dungeon
+local lim_shard = 3 --Teto das shards ganhas na dungeon
+local storage_monster = 1 -- Storage que representa o número da dungeon, deve sempre ser igual ao número do arquivo ex: dungeon_1.lua storage_monster deve ser 1 -- IMPORTANTE MEXER --
+
+--Funcao principal (NÃO MEXER).
+function onUse(cid, item, frompos, item2, topos)
+	return iniciar_dungeon(cid, dungeon_storage_ativo, pos_jogadores, dungeon_storage, controle, boss, monstro_cid, players, time, tempo, entrada_dungeon,pos, nome, storage_monster, dungeon_boss, dungeon_storage_qtd, dungeon_storage_time, boss_name, boss_pos, entrada_boss, check_boss, check_monsters, premios, lim_dinheiro, lim_shard, xp, delay, check_saida, pos_dungeon)
+end

@@ -1,4 +1,0 @@
-function onDeath(cid)
-	local aux = getGlobalStorageValue("dungeon_1_qtd")
-	setGlobalStorageValue("dungeon_1_qtd", aux - 1)
-end

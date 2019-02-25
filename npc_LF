@@ -1,0 +1,155 @@
+local keywordHandler = KeywordHandler:new()
+local npcHandler = NpcHandler:new(keywordHandler)
+local talkState = {}
+NpcSystem.parseParameters(npcHandler)
+
+function onCreatureAppear(cid)
+	npcHandler:onCreatureAppear(cid)					 
+end
+
+function onCreatureDisappear(cid)
+	npcHandler:onCreatureDisappear(cid)					 
+end
+
+function onCreatureSay(cid, type, msg)
+	npcHandler:onCreatureSay(cid, type, msg)			 
+end
+
+function onThink()
+	npcHandler:onThink()								 
+end
+
+function checaTipo1(lista)
+	local ctrl = 1
+	local var = ""
+	if table.maxn(lista) == 1 then
+		ctrl = 0
+		return ctrl
+	end
+	for i = 1, table.maxn(lista), 2 do
+		if string.len(lista[i]) > string.len(lista[i+1]) then
+			ctrl = 0
+		end
+		if lista[i+1] == "E" then
+			var = lista[i]
+		end
+	end
+	for i = 2, table.maxn(lista), 2 do
+		if (string.match(lista[i], var)) then
+			ctrl = 0
+			break
+		end
+	end
+	return ctrl
+end
+
+function checaTipo2(lista)
+	local ctrl = 1
+	for i = 1, table.maxn(lista), 2 do
+		if (string.len(lista[i]) > 1) then
+			ctrl = 0
+			break
+		end
+	end
+	return ctrl
+end
+
+function checaTipo3(lista)
+	local l = lista
+	local ctrl = 1
+	for i = 2, table.maxn(l), 2 do
+		if(l[i] ~= "E") then
+			l[i] = string.gsub(l[i], "%u", "B")
+			l[i] = string.gsub(l[i], "%U", "b")
+		end
+		if((l[i] ~= "E") and (l[i] ~= "b") and (l[i] ~= "bB")) then
+			ctrl = 0
+			break
+		end
+	end
+	return ctrl
+end
+function checagem(lista)
+	if table.maxn(lista) == 0 then
+		return 4
+	end
+	if checaTipo2(lista) == 1 then 
+		if checaTipo3(lista) == 1 then
+			return 3
+		else
+			return 2
+		end
+	else
+		if checaTipo1(lista) == 1 then
+			return 1
+		else
+			return 0
+		end
+	end
+end
+
+function FocusModule:init(handler)
+    local FOCUS_GREETSWORDS = {'oi'}
+    local FOCUS_FAREWELLSWORDS = {'tchau'}
+        self.npcHandler = handler
+        for i, word in pairs(FOCUS_GREETSWORDS) do
+            local obj = {}
+            table.insert(obj, word)
+            obj.callback = FOCUS_GREETSWORDS.callback or FocusModule.messageMatcher
+            handler.keywordHandler:addKeyword(obj, FocusModule.onGreet, {module = self})
+        end
+     
+        for i, word in pairs(FOCUS_FAREWELLSWORDS) do
+            local obj = {}
+            table.insert(obj, word)
+            obj.callback = FOCUS_FAREWELLSWORDS.callback or FocusModule.messageMatcher
+            handler.keywordHandler:addKeyword(obj, FocusModule.onFarewell, {module = self})
+        end
+     
+        return true
+end
+	
+function creatureSayCallback(cid, type, msg)
+	if(not npcHandler:isFocused(cid)) then
+		return false
+	end
+
+	local talkUser = NPCHANDLER_CONVBEHAVIOR == CONVERSATION_DEFAULT and 0 or cid
+
+	if msgcontains(msg, 'pergaminho') then
+		if getPlayerStorageValue(cid, "gramatica") == 0 then
+			selfSay('Pegue esse pergaminho e escreva sua gramática nele, assim que terminar fale comigo novamente.', cid)
+			livro = doPlayerAddItem(cid, 1951)
+			setPlayerStorageValue(cid, "gramatica", 1)
+		else
+			selfSay('Você já pegou um pergaminho.', cid)
+		end
+	elseif msgcontains(msg, 'verificar') then
+		if getPlayerStorageValue(cid, "gramatica") == 1 then
+			local id = getPlayerSlotItem(cid,CONST_SLOT_LEFT).uid
+			local texto = getItemText(id)
+			local tabelafrases = string.explode(texto, "[\n,%-]+")
+			local aux = checagem(tabelafrases)
+			if aux == 0 then
+				selfSay('Eu diria que essa gramática é do tipo 0.', cid)
+			elseif aux == 1 then
+				selfSay('Essa aí é do tipo 2. Ah não, me enganei essa é do tipo 1.', cid)
+			elseif aux == 2 then
+				selfSay('Essa é do tipo 2. Pelo menos eu acho.', cid)
+			elseif aux == 3 then
+				selfSay('Essa aí é do tipo 3.', cid)
+			else
+				selfSay("Isso não se parece com uma gramática.", cid)
+			end
+			doRemoveItem(id)
+			setPlayerStorageValue(cid, "gramatica", 0)
+		else
+			selfSay('Você ainda não pegou um pergaminho.', cid)
+		end
+	end
+	return true
+end
+
+local focusModule = FocusModule:new()
+npcHandler:setCallback(CALLBACK_MESSAGE_DEFAULT, creatureSayCallback)
+npcHandler:addModule(focusModule)

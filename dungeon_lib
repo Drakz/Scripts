@@ -1,0 +1,132 @@
+--Funcao para chamar o Boss, será chamando quando os jogadores matarem todos os monstros da dungeon.
+local function Boss(d_storage_qtd, storage_ativo, tab_monster, b_name, b_pos, monster_storage, tab_players, p_boss, t_boss, pos_monster, storage)
+	if(getGlobalStorageValue(d_storage_qtd) == 0 and getGlobalStorageValue(storage_ativo) == 1) then
+		tab_monster[(#tab_monster + 1)] = doCreateMonster(b_name, b_pos)
+		doCreatureSetStorage(tab_monster[(#tab_monster)], "dungeon", monster_storage)
+		for i = 1, (table.maxn(tab_players)) do
+			if(isPlayer(tab_players[i].uid) == true) then
+				doTeleportThing(tab_players[i].uid, p_boss)
+			end
+		end
+		return true
+	else
+		if(getGlobalStorageValue(storage_ativo) == 1) then
+			for i = 1, (table.maxn(tab_players)) do
+				if(isPlayer(tab_players[i].uid) == true) then
+	            	if(getPlayerStorageValue(tab_players[i].uid,storage) == 1) then
+	                	doPlayerSendTextMessage(tab_players[i].uid, MESSAGE_STATUS_CONSOLE_BLUE, "Monstros: "..getGlobalStorageValue(d_storage_qtd).."/"..table.maxn(pos_monster))
+	            	end
+	            end
+        	end
+			addEvent(Boss, t_boss, d_storage_qtd, storage_ativo, tab_monster, b_name, b_pos, monster_storage, tab_players, p_boss, t_boss, pos_monster, storage)
+		end
+	end
+end
+
+--Funcao para retirar os jogadores da dungeon quando o boss estiver morto
+local function saida(d_boss, tab_players, position_players, tab_premios, l_dinheiro, l_shard, storage, exp, t_delay, t_saida, storage_ativo, tab_monster, pos_monster)
+	if(getGlobalStorageValue(d_boss) == 1) then
+		for i = 1, (table.maxn(tab_players)) do
+			if(isPlayer(tab_players[i].uid) == true) then
+				local money = math.random(1,l_dinheiro)
+				local shards = math.random(1,l_shard)
+				local premio = math.random(1,#tab_premios)
+				doTeleportThing(tab_players[i].uid,position_players[i])
+				doPlayerSendTextMessage(tab_players[i].uid, MESSAGE_STATUS_CONSOLE_BLUE, "Parabéns por concluir a dungeon.")
+				doPlayerAddItem(tab_players[i].uid, tab_premios[premio])
+				doPlayerAddItem(tab_players[i].uid, 2160, money)
+				doPlayerAddItem(tab_players[i].uid, 10531, shards)
+				doPlayerAddExperience(tab_players[i].uid, exp)
+				setPlayerStorageValue(tab_players[i].uid, storage, os.time() + t_delay)
+				doPlayerSendTextMessage(tab_players[i].uid,MESSAGE_STATUS_CONSOLE_BLUE,"Prêmios: "..exp.." experience points, "..money.." crystal coin(s), "..shards.." midnight shard(s), e um "..getItemNameById(tab_premios[premio]))
+			end
+		end
+		setGlobalStorageValue(storage_ativo, 0)
+		return true
+	else
+		addEvent(saida, t_saida,d_boss, tab_players, position_players, tab_premios, l_dinheiro, l_shard, storage, exp, t_delay, t_saida, storage_ativo, tab_monster, pos_monster)
+	end
+end
+
+-- Funcao para retirar os jogadores da dungeon caso o tempo acabe
+function retira_player(ctrl_time, d_storage_time, storage_ativo, tab_players, storage, p_dungeon, tab_monster)
+	if(getGlobalStorageValue(d_storage_time) == ctrl_time) then
+		if(getGlobalStorageValue(storage_ativo) == 1) then
+			for i = 1, #tab_players do
+				if(isPlayer(tab_players[i].uid) == true) then
+					doTeleportThing(tab_players[i].uid,p_dungeon)
+					setPlayerStorageValue(tab_players[i].uid,storage,-1)
+					doPlayerSendTextMessage(tab_players[i].uid, MESSAGE_STATUS_CONSOLE_BLUE, "O tempo para concluir a dungeon chegou ao fim.")
+				end
+			end
+			setGlobalStorageValue(storage_ativo, 0)
+			for i = 1, (table.maxn(tab_monster)) do
+				if(isMonster(tab_monster[i]) == true) then
+					doRemoveCreature(tab_monster[i])
+				end
+			end
+		end
+	end
+end
+
+--Funcao para checar se os jogadores estao em posição
+local function checa_jogadores(cid, position_players, storage)
+    for i = 1, #position_players do
+        local jogador = getTopCreature(position_players[i]).uid
+        if(isPlayer(jogador) == false) then
+            doPlayerSendTextMessage(cid,MESSAGE_STATUS_CONSOLE_BLUE,"São necessários "..#position_players.." jogadores para essa dungeon.")
+            return false
+        end
+        if(getPlayerStorageValue(jogador,storage) > os.time()) then
+            return true
+        end
+    end
+    return false
+end
+
+--Funcao de inicio de dungeon
+function iniciar_dungeon(cid, storage_ativo, position_players, storage, ctrl, ctrl_boss, tab_monster, tab_players, ctrl_time, ctrl_tempo, pos_inicial, pos_monster, monster_name, monster_storage, d_boss, d_storage_qtd, d_storage_time, b_name, b_pos, p_boss, t_boss, t_monster, tab_premios, l_dinheiro, l_shard, exp, t_delay, t_saida, p_dungeon)
+	if(getConfigValue("dungeons")[storage] == nil) then
+		doPlayerSendTextMessage(cid,MESSAGE_STATUS_CONSOLE_BLUE,"Essa dungeon está desativada no momento.")
+		return false
+	end 
+	if(getGlobalStorageValue(storage_ativo) == 1) then
+		doPlayerSendTextMessage(cid,MESSAGE_STATUS_CONSOLE_BLUE,"Tem algum time no momento fazendo essa dungeon.")
+		return false
+	end
+	if(checa_jogadores(cid,position_players,storage) == true) then
+		doPlayerSendTextMessage(cid,MESSAGE_STATUS_CONSOLE_BLUE,"Alguém do time não pode fazer essa dungeon no momento.")
+		return false
+	end
+	ctrl = true
+	tab_monster = {}
+	tab_players = {}
+	ctrl_time = ctrl_time + 1
+	for i = 1, #position_players do
+		tab_players[i] = getTopCreature(position_players[i])
+		if(isPlayer(tab_players[i].uid) == false) then
+			ctrl = false
+			break
+		end
+	end
+	if(ctrl == false) then
+		return false
+	end
+	for i = 1,#position_players do
+		doTeleportThing(tab_players[i].uid,pos_inicial)
+		setPlayerStorageValue(tab_players[i].uid,storage,1)
+		doPlayerSendTextMessage(tab_players[i].uid,MESSAGE_STATUS_CONSOLE_BLUE,"O time tem "..(ctrl_tempo/60000).." minutos para terminar a dungeon. Boa sorte aventureiros!")
+	end
+	for i = 1,#pos_monster do
+		tab_monster[i] = doCreateMonster(monster_name[math.random(1,#monster_name)], pos_monster[i]) -- Cria os monstros e registra seus creature ids em uma tabela.
+		doCreatureSetStorage(tab_monster[i], "dungeon", monster_storage) -- Controle de quantidade de monstros na dungeon
+	end
+	setGlobalStorageValue(d_boss, 0)
+	setGlobalStorageValue(storage_ativo, 1) -- Guarda em uma storage se a dungeon está ou não ativa.
+	setGlobalStorageValue(d_storage_qtd, #pos_monster) -- Guarda em uma storage o numero de jogadores da dungeon.
+	setGlobalStorageValue(d_storage_time, ctrl_time)
+	addEvent(retira_player, ctrl_tempo, ctrl_time, d_storage_time, storage_ativo, tab_players, storage, p_dungeon, tab_monster) -- Cria um evento com o tempo em que a dungeon pode ser feita.
+	Boss(d_storage_qtd, storage_ativo, tab_monster, b_name, b_pos, monster_storage, tab_players, p_boss, t_boss, pos_monster, storage)
+	saida(d_boss, tab_players, position_players, tab_premios, l_dinheiro, l_shard, storage, exp, t_delay, t_saida, storage_ativo, tab_monster, pos_monster)
+	return true
+end

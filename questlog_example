@@ -1,16 +1,16 @@
-	<quest name="Al'catraz Prision" startstorageid="7511" startstoragevalue="-1">
-		<mission name="Prision of Monsters" storageid="7511" startvalue="-1" endvalue="1">
-			<missionstate id="0" description="Os habitantes da abandonada prisão de Al'catraz estavam guardando uma poderosa armadura na cela de um terrível monstro."/>
-			<missionstate id="1" description="Parabéns, você conseguiu recuperar a armadura da prisão de Al'catraz."/>
-		</mission>
-	</quest>
-	<quest name="Death Castle" startstorageid="7512" startstoragevalue="-1">
-		<mission name="West Tower" storageid="7512" startvalue="-1" endvalue="1">
-			<missionstate id="0" description="Depois de ser dominado por monstros e ser apelidado de Death Castle, surgiu a lenda que fortes itens estavam sendo guardados ali. Se aventure para a torre oeste e descubra se essa lenda é verdadeira."/>
-			<missionstate id="1" description="Parabéns, depois de desbravar o castelo da morte você provou que a lenda era verdadeira e saiu vitorioso."/>
-		</mission>
-		<mission name="East Tower" storageid="2508" startvalue="-1" endvalue="1">
-			<missionstate id="0" description="Depois de ser dominado por monstros e ser apelidado de Death Castle, surgiu a lenda que fortes itens estavam sendo guardados ali. Se aventure para a torre leste e descubra se essa lenda é verdadeira."/>
-			<missionstate id="1" description="Parabéns, depois de desbravar o castelo da morte você provou que a lenda era verdadeira e saiu vitorioso."/>
-		</mission>
-	</quest>
+<quest name="Al'catraz Prision" startstorageid="7511" startstoragevalue="-1">
+	<mission name="Prision of Monsters" storageid="7511" startvalue="-1" endvalue="1">
+		<missionstate id="0" description="Os habitantes da abandonada prisão de Al'catraz estavam guardando uma poderosa armadura na cela de um terrível monstro."/>
+		<missionstate id="1" description="Parabéns, você conseguiu recuperar a armadura da prisão de Al'catraz."/>
+	</mission>
+</quest>
+<quest name="Death Castle" startstorageid="7512" startstoragevalue="-1">
+	<mission name="West Tower" storageid="7512" startvalue="-1" endvalue="1">
+		<missionstate id="0" description="Depois de ser dominado por monstros e ser apelidado de Death Castle, surgiu a lenda que fortes itens estavam sendo guardados ali. Se aventure para a torre oeste e descubra se essa lenda é verdadeira."/>
+		<missionstate id="1" description="Parabéns, depois de desbravar o castelo da morte você provou que a lenda era verdadeira e saiu vitorioso."/>
+	</mission>
+	<mission name="East Tower" storageid="2508" startvalue="-1" endvalue="1">
+		<missionstate id="0" description="Depois de ser dominado por monstros e ser apelidado de Death Castle, surgiu a lenda que fortes itens estavam sendo guardados ali. Se aventure para a torre leste e descubra se essa lenda é verdadeira."/>
+		<missionstate id="1" description="Parabéns, depois de desbravar o castelo da morte você provou que a lenda era verdadeira e saiu vitorioso."/>
+	</mission>
+</quest>

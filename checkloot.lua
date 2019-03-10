@@ -1,5 +1,5 @@
 function onSay(cid, words)
-local message = "---------------------------- LISTA DE LOOTS ----------------------------"
+local message = "---------------------------- LISTA DE LOOTS -----------------------------"
 local msg = ""
 if getPlayerStorageValue(cid, "loot") ~= -1 then
 	string.gsub(getPlayerStorageValue(cid, "loot"), "(%d+)", function(x) msg = msg.."\n".."Item ID: "..x.." - "..getItemNameById(x) end)

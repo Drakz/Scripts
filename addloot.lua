@@ -1,3 +1,5 @@
+--Comando para adicionar loots na lista para autoloot
+
 function onSay(cid, words, param)
 	if getItemIdByName(param) == false then
 		doPlayerSendTextMessage(cid, MESSAGE_STATUS_CONSOLE_BLUE, "Item inexistente.")
@@ -6,17 +8,17 @@ function onSay(cid, words, param)
 	
 	local texto = ""
 	local config = { 
-		item_free = 3, --N„o mexer no -1
-		item_premium = 10 --N„o mexer no -1
+		item_free = 3, --N√£o mexer no -1
+		item_premium = 10 --N√£o mexer no -1
 	}
 	if isPremium(cid) then
 		if(tonumber(getPlayerStorageValue(cid, "loot_tam")) >= config.item_premium) then 
-			doPlayerSendTextMessage(cid, MESSAGE_STATUS_CONSOLE_BLUE, "Sua lista de loots j· chegou no seu limite.")
+			doPlayerSendTextMessage(cid, MESSAGE_STATUS_CONSOLE_BLUE, "Sua lista de loots j√° chegou no seu limite.")
 			return true
 		end
 	else
 		if(tonumber(getPlayerStorageValue(cid, "loot_tam")) >= config.item_free) then 
-			doPlayerSendTextMessage(cid, MESSAGE_STATUS_CONSOLE_BLUE, "Sua lista de loots j· chegou no seu limite.")
+			doPlayerSendTextMessage(cid, MESSAGE_STATUS_CONSOLE_BLUE, "Sua lista de loots j√° chegou no seu limite.")
 			return true
 		end
 	end
@@ -30,7 +32,7 @@ function onSay(cid, words, param)
 		local aux = getPlayerStorageValue(cid, "loot")
 		string.gsub(aux, "(%d+)", function(d) if getItemIdByName(param) == tonumber(d) then ctrl = true end end)
 		if ctrl == true then
-			doPlayerSendTextMessage(cid, MESSAGE_STATUS_CONSOLE_BLUE, "Este item j· foi adicionado.")
+			doPlayerSendTextMessage(cid, MESSAGE_STATUS_CONSOLE_BLUE, "Este item j√° foi adicionado.")
 		return true
 		end
 		local textinho = getPlayerStorageValue(cid,"loot")

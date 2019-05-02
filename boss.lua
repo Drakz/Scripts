@@ -1,5 +1,7 @@
+--Script de controle de teleports para bosses diarios
+
 arenas = {
-	["295455"] = { -- wraith
+	["295455"] = { 
 		level_min = 300, 
 		level_max = 400, 
 		tempo =  10 * 60 * 1000, 
@@ -8,15 +10,15 @@ arenas = {
 		arena_z = 8,
 		boss_hide = {x = 261, y = 228, z = 7}, 
 		entrada = {x = 297, y = 464, z = 8}
-	}
+	}-- wraith
 }
 
 boss = {
-	["295455"] = { --wraith
+	["295455"] = { 
 		nome = "Wraith", 
 		pos = {x = 299, y = 454, z = 8},
 		pos_hide = {x = 261, y = 228, z = 7}
-	} 
+	} --wraith
 }
 
 saidas = {

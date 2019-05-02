@@ -1,3 +1,5 @@
+--NPC para checar tipo de gramática, usado na matéria de linguagens formais
+
 local keywordHandler = KeywordHandler:new()
 local npcHandler = NpcHandler:new(keywordHandler)
 local talkState = {}
